@@ -11,4 +11,5 @@ myShow x = show x
 main :: IO ()
 main = do
     x <- getLine
+    putStrLn $ show $ parse $ alexScanTokens x
     putStrLn $ unlines $ filter (/="") $ map myShow $ gen_program $ parse $ alexScanTokens x
