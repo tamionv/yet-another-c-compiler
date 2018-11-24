@@ -4,3 +4,5 @@ Fill out types
 Type casts in syntax
 Sizeof, Alignof
 function calls
+operand sizes in expressions
+variable sizes in declarations
