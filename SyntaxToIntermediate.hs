@@ -24,7 +24,18 @@ data GeneratorState = GeneratorState
     { type_sizes        :: Map.Map Type Int
     , type_alignments   :: Map.Map Type Int
     , global_variables  :: Set.Set String
+    , current_label     :: Int
     } deriving (Eq, Ord, Show)
+
+get_label_from_state gs =
+    (current_label gs + 1
+    , GeneratorState
+        {type_sizes = type_sizes gs
+        , type_alignments = type_alignments gs
+        , global_variables = global_variables gs
+        , current_label = current_label gs + 1
+        }
+    )
 
 generate_expression e = case e of
     Variable name    -> Seq [Global name, Load 4]
@@ -34,6 +45,12 @@ generate_expression e = case e of
     --Ternop ...
     -- these sizes are bad TODO
     ConstantChar x   -> Const 1 $ fromEnum x
+    S.Binop "," x y -> Seq
+        [generate_expression x
+        , I.Monop 4 Pop
+        , generate_expression y
+        , I.Monop 4 Pop
+        ]
     S.Binop "/" x y -> Seq
         [generate_expression x
         , generate_expression y

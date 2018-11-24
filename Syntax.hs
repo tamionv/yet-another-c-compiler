@@ -16,7 +16,9 @@ data Expr
 
 data Stmt
     = ExprStmt Expr
+    | IfStmt Expr Stmt Stmt
     | Print Expr
+    | Nop
     deriving (Eq, Ord, Show)
 
 data Type

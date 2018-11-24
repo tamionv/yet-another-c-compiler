@@ -48,6 +48,7 @@ data UnaryOperators
     | Negate
     | BitFlip
     | Print
+    | Pop
     deriving Show
 
 data IntermediateCode

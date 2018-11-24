@@ -47,6 +47,8 @@ import Syntax
     VOID        { Keyword "void" }
     VOLATILE    { Keyword "volatile" }
     WHILE       { Keyword "while" }
+    "{"         { Punctuation "{" }
+    "}"         { Punctuation "}" }
     "("         { Punctuation "(" }
     ")"         { Punctuation ")" }
     "["         { Punctuation "[" }
@@ -118,8 +120,15 @@ stmts
     | stmts stmt                { $2 : $1 }
 
 stmt
-    : expr ";"                  { ExprStmt $1 }
-    | PRINT expr ";"            { Print $2 }
+    : ";"                                             { Nop }
+    | expr ";"                                        { ExprStmt $1 }
+    | PRINT expr ";"                                  { Print $2 }
+    | IF "(" expr ")" stmt ";"                        { IfStmt $3 $5 Nop }
+    | IF "(" expr ")" "{" stmt "}"                    { IfStmt $3 $6 Nop }
+    | IF "(" expr ")" stmt ELSE stmt ";"              { IfStmt $3 $5 $7 }
+    | IF "(" expr ")" stmt ELSE "{" stmt "}"          { IfStmt $3 $5 $8 }
+    | IF "(" expr ")" "{" stmt "}" ELSE stmt ";"      { IfStmt $3 $6 $9 }
+    | IF "(" expr ")" "{" stmt "}" ELSE "{" stmt "}"  { IfStmt $3 $6 $10 }
 
 expr
     : ID                        { Variable $1 }
