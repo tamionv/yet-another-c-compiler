@@ -5,7 +5,8 @@ module Intermediate where
  - Stack based language.
  -
  - Instructions:
- - Alloc name width
+ - GlobalAlloc name width
+ - HeapAlloc width
  -
  - Const width value
  - Local
@@ -19,6 +20,8 @@ module Intermediate where
  - Label L
  - Jump label
  - CondJump Label
+ -
+ -
  -
  -}
 
@@ -54,7 +57,8 @@ data UnaryOperators
 data IntermediateCode
     = Seq [IntermediateCode]
     | Const Int Int
-    | Alloc String Int
+    | GlobalAlloc String Int
+    |  HeapAlloc Int
     | Local
     | Global String
     | Binop Int BinaryOperators

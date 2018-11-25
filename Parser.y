@@ -123,11 +123,11 @@ stmt
     : ";"                                             { Nop }
     | expr ";"                                        { ExprStmt $1 }
     | PRINT expr ";"                                  { Print $2 }
-    | IF "(" expr ")" stmt ";"                        { IfStmt $3 $5 Nop }
+    | IF "(" expr ")" stmt                            { IfStmt $3 $5 Nop }
     | IF "(" expr ")" "{" stmt "}"                    { IfStmt $3 $6 Nop }
-    | IF "(" expr ")" stmt ELSE stmt ";"              { IfStmt $3 $5 $7 }
+    | IF "(" expr ")" stmt ELSE stmt                  { IfStmt $3 $5 $7 }
     | IF "(" expr ")" stmt ELSE "{" stmt "}"          { IfStmt $3 $5 $8 }
-    | IF "(" expr ")" "{" stmt "}" ELSE stmt ";"      { IfStmt $3 $6 $9 }
+    | IF "(" expr ")" "{" stmt "}" ELSE stmt          { IfStmt $3 $6 $9 }
     | IF "(" expr ")" "{" stmt "}" ELSE "{" stmt "}"  { IfStmt $3 $6 $10 }
 
 expr

@@ -70,8 +70,8 @@ init_state = GeneratorState
     , current_label = 0
     }
 
-get_label_from_state :: State GeneratorState Int
-get_label_from_state = do
+make_label :: State GeneratorState Int
+make_label = do
     gs <- get
     put $ GeneratorState
         {type_sizes = type_sizes gs
@@ -90,6 +90,25 @@ generate_expression e = case e of
     --Ternop ...
     -- these sizes are bad TODO
     ConstantChar x   -> return $ Const 1 $ fromEnum x
+    S.Ternop _ x y z -> do
+        l1 <- make_label
+        l2 <- make_label
+        l3 <- make_label
+        g_expr_x <- generate_expression x
+        g_expr_y <- generate_expression y
+        g_expr_z <- generate_expression z
+        return $ Seq
+            [ g_expr_x
+            , I.CondJump l1
+            , I.Jump l2
+            , I.Label l1
+            , g_expr_y
+            , I.Jump l3
+            , I.Label l2
+            , g_expr_z
+            , I.Label l3
+            ]
+
     S.Binop which_op x y ->
         if which_op == "="
         then do
@@ -180,13 +199,32 @@ generate_declaration (VarDecl _ xs) = do
                 return $ Seq $ [gen_eq, I.Monop 4 I.Pop]
     inits <- mapM gen_init xs
     return $ Seq
-        [ Seq $ map (\(x, _) -> Alloc x 4) xs
+        [ Seq $ map (\(x, _) -> GlobalAlloc x 4) xs
         , Seq inits
         ]
 
 generate_statement :: Stmt -> State GeneratorState I.IntermediateCode
 generate_statement s = case s of
     ExprStmt e -> generate_expression e
+    Nop -> return $ Seq []
+    IfStmt e s1 s2 -> do
+        l1 <- make_label
+        l2 <- make_label
+        l3 <- make_label
+        g_expr_e <- generate_expression e
+        g_stmt_s1 <- generate_statement s1
+        g_stmt_s2 <- generate_statement s2
+        return $ Seq
+            [ g_expr_e
+            , I.CondJump l1
+            , I.Jump l2
+            , I.Label l1
+            , g_stmt_s1
+            , I.Jump l3
+            , I.Label l2
+            , g_stmt_s2
+            , I.Label l3
+            ]
     S.Print e -> do
         g_expr_e <- generate_expression e
         return $ Seq [g_expr_e, I.Monop 4 I.Print]
@@ -194,7 +232,7 @@ generate_statement s = case s of
 gen_program :: Program -> I.IntermediateCode
 gen_program (Prg decls stmts) = fst $ flip runState init_state $ do
     let isAlloc ins = case ins of
-            Alloc _ _ -> True
+            GlobalAlloc _ _ -> True
             _         -> False
     (allocs, inits) <- List.partition isAlloc <$> I.flatten <$> Seq <$> mapM generate_declaration decls
     text <- mapM generate_statement stmts
