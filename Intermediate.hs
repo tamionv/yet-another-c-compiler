@@ -65,3 +65,6 @@ data IntermediateCode
     | Load Int
     | Store Int
     deriving Show
+
+flatten (Seq xs) = concatMap flatten xs
+flatten ins      = [ins]
