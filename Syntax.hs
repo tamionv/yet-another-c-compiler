@@ -18,6 +18,7 @@ data Stmt
     = AndThenStmt Stmt Stmt
     | ExprStmt Expr
     | IfStmt Expr Stmt Stmt
+    | WhileStmt Expr Stmt
     | Print Expr
     | Read Expr
     | Nop

@@ -237,6 +237,22 @@ generate_statement s = case s of
             , g_stmt_s2
             , I.Label l3
             ]
+    WhileStmt e s -> do
+        l1 <- make_label
+        l2 <- make_label
+        l3 <- make_label
+        g_expr_e <- generate_expression e
+        g_stmt_s <- generate_statement s
+        return $ Seq
+            [ I.Label l1
+            , g_expr_e
+            , I.CondJump l2
+            , I.Jump l3
+            , I.Label l2
+            , g_stmt_s
+            , I.Jump l1
+            , I.Label l3
+            ]
     S.Print e -> do
         g_expr_e <- generate_expression e
         return $ Seq [g_expr_e, I.Monop 4 I.Print]

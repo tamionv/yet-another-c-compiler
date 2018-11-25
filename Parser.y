@@ -133,6 +133,8 @@ stmt
     | IF "(" expr ")" stmt ELSE "{" stmt "}"                              { IfStmt $3 $5 $8 }
     | IF "(" expr ")" "{" stmts "}" ELSE stmt                             { IfStmt $3 $6 $9 }
     | IF "(" expr ")" "{" stmts "}" ELSE "{" stmts "}"                    { IfStmt $3 $6 $10 }
+    | WHILE "(" expr ")" stmt                                             { WhileStmt $3 $5 }
+    | WHILE "(" expr ")" "{" stmts "}"                                    { WhileStmt $3 $6 }
 
 expr
     : ID                        { Variable $1 }
