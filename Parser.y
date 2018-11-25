@@ -15,6 +15,7 @@ import Syntax
     CHR         { LiteralChar $$ }
     ID          { Identifier $$ }
     PRINT       { Keyword "print" }
+    READ        { Keyword "read" }
     AUTO        { Keyword "auto" }
     BREAK       { Keyword "break" }
     CASE        { Keyword "case" }
@@ -93,6 +94,8 @@ import Syntax
     ","         { Punctuation "," }
     ";"         { Punctuation ";" }
 
+%nonassoc IFTHEN
+%nonassoc ELSE
 %right PAREN
 %left ";"
 %left ","
@@ -113,22 +116,23 @@ import Syntax
 
 %%
 
-program: declarations stmts     { Prg (reverse $1) (reverse $2) }
+program: declarations stmts     { Prg (reverse $1) $2 }
 
 stmts
-    :                           { [] }
-    | stmts stmt                { $2 : $1 }
+    :                           { Nop }
+    | stmts stmt                { AndThenStmt $1 $2 }
 
 stmt
-    : ";"                                             { Nop }
-    | expr ";"                                        { ExprStmt $1 }
-    | PRINT expr ";"                                  { Print $2 }
-    | IF "(" expr ")" stmt                            { IfStmt $3 $5 Nop }
-    | IF "(" expr ")" "{" stmt "}"                    { IfStmt $3 $6 Nop }
-    | IF "(" expr ")" stmt ELSE stmt                  { IfStmt $3 $5 $7 }
-    | IF "(" expr ")" stmt ELSE "{" stmt "}"          { IfStmt $3 $5 $8 }
-    | IF "(" expr ")" "{" stmt "}" ELSE stmt          { IfStmt $3 $6 $9 }
-    | IF "(" expr ")" "{" stmt "}" ELSE "{" stmt "}"  { IfStmt $3 $6 $10 }
+    : ";"                                                                 { Nop }
+    | expr ";"                                                            { ExprStmt $1 }
+    | PRINT "(" expr ")" ";"                                              { Print $3 }
+    | READ "(" expr ")" ";"                                               { Read $3 }
+    | IF "(" expr ")" stmt                           %prec IFTHEN         { IfStmt $3 $5 Nop }
+    | IF "(" expr ")" "{" stmts "}"                  %prec IFTHEN         { IfStmt $3 $6 Nop }
+    | IF "(" expr ")" stmt ELSE stmt                                      { IfStmt $3 $5 $7 }
+    | IF "(" expr ")" stmt ELSE "{" stmt "}"                              { IfStmt $3 $5 $8 }
+    | IF "(" expr ")" "{" stmts "}" ELSE stmt                             { IfStmt $3 $6 $9 }
+    | IF "(" expr ")" "{" stmts "}" ELSE "{" stmts "}"                    { IfStmt $3 $6 $10 }
 
 expr
     : ID                        { Variable $1 }
@@ -136,7 +140,6 @@ expr
     | FLT                       { ConstantDouble $1 }
     | STR                       { ConstantString $1 }
     | CHR                       { ConstantChar $1 }
-    | expr "?" expr ":" expr    { Ternop "?:" $1 $3 $5 }
     | "(" expr ")" %prec PAREN  { $2 }
     | expr "[" expr "]"         { Binop "[" $1 $3 }
     | "!" expr                  { Monop "!" $2 }

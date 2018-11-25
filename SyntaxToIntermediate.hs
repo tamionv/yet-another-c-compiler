@@ -205,7 +205,13 @@ generate_declaration (VarDecl _ xs) = do
 
 generate_statement :: Stmt -> State GeneratorState I.IntermediateCode
 generate_statement s = case s of
-    ExprStmt e -> generate_expression e
+    AndThenStmt s1 s2 -> do
+        g_stmt_s1 <- generate_statement s1
+        g_stmt_s2 <- generate_statement s2
+        return $ Seq [g_stmt_s1, g_stmt_s2]
+    ExprStmt e -> do
+        g_expr_e <- generate_expression e
+        return $ Seq [g_expr_e, I.Monop 4 Pop]
     Nop -> return $ Seq []
     IfStmt e s1 s2 -> do
         l1 <- make_label
@@ -228,6 +234,8 @@ generate_statement s = case s of
     S.Print e -> do
         g_expr_e <- generate_expression e
         return $ Seq [g_expr_e, I.Monop 4 I.Print]
+    S.Read (Variable x) -> do
+        return $ Seq [I.Global x, I.Monop 4 I.Read]
 
 gen_program :: Program -> I.IntermediateCode
 gen_program (Prg decls stmts) = fst $ flip runState init_state $ do
@@ -235,5 +243,5 @@ gen_program (Prg decls stmts) = fst $ flip runState init_state $ do
             GlobalAlloc _ _ -> True
             _         -> False
     (allocs, inits) <- List.partition isAlloc <$> I.flatten <$> Seq <$> mapM generate_declaration decls
-    text <- mapM generate_statement stmts
-    return $ Seq $ allocs ++ inits ++ text
+    text <- generate_statement stmts
+    return $ Seq $ allocs ++ inits ++ [text]

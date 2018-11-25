@@ -1,6 +1,6 @@
 module Syntax where
 
-data Program = Prg [Declaration] [Stmt]
+data Program = Prg [Declaration] Stmt
     deriving (Eq, Ord, Show)
 
 data Expr
@@ -15,9 +15,11 @@ data Expr
     deriving (Eq, Ord, Show)
 
 data Stmt
-    = ExprStmt Expr
+    = AndThenStmt Stmt Stmt
+    | ExprStmt Expr
     | IfStmt Expr Stmt Stmt
     | Print Expr
+    | Read Expr
     | Nop
     deriving (Eq, Ord, Show)
 

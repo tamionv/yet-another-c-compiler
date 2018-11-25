@@ -51,6 +51,7 @@ data UnaryOperators
     | Negate
     | BitFlip
     | Print
+    | Read
     | Pop
     deriving Show
 
@@ -58,7 +59,7 @@ data IntermediateCode
     = Seq [IntermediateCode]
     | Const Int Int
     | GlobalAlloc String Int
-    |  HeapAlloc Int
+    | HeapAlloc Int
     | Local
     | Global String
     | Binop Int BinaryOperators

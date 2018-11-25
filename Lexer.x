@@ -10,7 +10,7 @@ $alpha = [a-zA-Z]
 $eol = [\n]
 @comment = (\/ * ( [^\*] | [\r\n] | (\* + ( [^ \* \/] | [\r\n] )))* \* + \/) | (\/ \/ \\. *)
 @punctuation = "{" | "}" | "[" | "]" | "(" | ")" | "." | "->" | "++" | "--" | "&" | "*" | "+" | "-" | "~" | "!" | "sizeof" | "/" | "%" | "<<" | ">>" | "<" | ">" | "<=" | ">=" | "==" | "!=" | "^" | "|" | "&&" | "||" | "?" | ":" | "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | "&=" | "^=" | "|=" | "," | "#" | "##" | ";" | ":" | "..."
-@keyword = "print" | "auto" | "break" | "case" | "char" | "const" | "continue" | "default" | "do" | "double" | "else" | "enum" | "extern" | "float" | "for" | "goto" | "if" | "int" | "long" | "register" | "return" | "short" | "signed" | "sizeof" | "static" | "struct" | "switch" | "typedef" | "union" | "unsigned" | "void" | "volatile" | "while"
+@keyword = "read" | "print" | "auto" | "break" | "case" | "char" | "const" | "continue" | "default" | "do" | "double" | "else" | "enum" | "extern" | "float" | "for" | "goto" | "if" | "int" | "long" | "register" | "return" | "short" | "signed" | "sizeof" | "static" | "struct" | "switch" | "typedef" | "union" | "unsigned" | "void" | "volatile" | "while"
 @identifier = [_a-zA-Z][\_a-zA-Z0-9]*
 @int = "0"|[1-9][0-9]*
 @string = \" ([^ \"] | \\\")* \"
