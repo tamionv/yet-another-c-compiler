@@ -5,8 +5,14 @@ module Intermediate where
  - Stack based language.
  -
  - Instructions:
+ -
+ - Call input_bytes output_bytes
+ - Procedure String
+ - EndProcedure
+ - 
+ - LocalAlloc width
+ - LocalDealloc width
  - GlobalAlloc name width
- - HeapAlloc width
  -
  - Const width value
  - Local
@@ -59,7 +65,8 @@ data IntermediateCode
     = Seq [IntermediateCode]
     | Const Int Int
     | GlobalAlloc String Int
-    | HeapAlloc Int
+    | LocalAlloc Int
+    | LocalDealloc Int
     | Local
     | Global String
     | Binop Int BinaryOperators
@@ -69,6 +76,10 @@ data IntermediateCode
     | CondJump Int
     | Load Int
     | Store Int
+    | Procedure String 
+    | EndProcedure
+    | Call Int Int
+    | Halt
     deriving Show
 
 flatten (Seq xs) = concatMap flatten xs

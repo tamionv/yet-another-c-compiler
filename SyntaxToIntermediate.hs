@@ -131,6 +131,50 @@ generate_expression e = case e of
                 , g_expr_y
                 , I.Monop 4 Pop
                 ]
+        else if which_op == "||"
+        then do
+            g_expr_x <- generate_expression x
+            g_expr_y <- generate_expression y
+            l1 <- make_label
+            l2 <- make_label
+            l3 <- make_label
+            return $ Seq
+                [ g_expr_x
+                , I.CondJump l1
+                , g_expr_y
+                , I.CondJump l1
+                , Jump l2
+                , I.Label l1
+                , I.Const 4 1
+                , I.Jump l3
+                , I.Label l2
+                , I.Const 4 0
+                , I.Jump l3
+                , I.Label l3
+                ]
+        else if which_op == "||"
+        then do
+            g_expr_x <- generate_expression x
+            g_expr_y <- generate_expression y
+            l1 <- make_label
+            l2 <- make_label
+            l3 <- make_label
+            l4 <- make_label
+            return $ Seq
+                [ g_expr_x
+                , I.CondJump l1
+                , I.Jump l3
+                , I.Label l1
+                , g_expr_y
+                , I.CondJump l2
+                , Jump l3
+                , I.Label l2
+                , I.Const 4 1
+                , I.Jump l4
+                , I.Label l3
+                , I.Const 4 0
+                , I.Label l4
+                ]
  
         else if simple_binop which_op
         then do
@@ -263,4 +307,4 @@ gen_program :: Program -> I.IntermediateCode
 gen_program (Prg decls stmts) = fst $ flip runState init_state $ do
     decl <- generate_declaration decls
     text <- generate_statement stmts
-    return $ Seq [decl, text]
+    return $ Seq [decl, text, Halt]

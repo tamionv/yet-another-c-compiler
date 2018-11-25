@@ -23,7 +23,8 @@ executable yet-another-c-compiler
     Token,
     Syntax,
     SyntaxToIntermediate,
-    Intermediate
+    Intermediate,
+    IntermediateInterpreter
   -- other-extensions:
   build-depends:       base >=4.11 && <4.12, base, array, containers, mtl
   build-tools:         alex, happy
