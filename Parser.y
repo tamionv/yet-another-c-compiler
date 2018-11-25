@@ -116,7 +116,7 @@ import Syntax
 
 %%
 
-program: declarations stmts     { Prg (reverse $1) $2 }
+program: declarations stmts     { Prg $1 $2 }
 
 stmts
     :                           { Nop }
@@ -211,8 +211,8 @@ declaration
     : type_specifier declarand_list ";"           { VarDecl $1 (reverse $2) }
 
 declarations
-    :                                   { [] }
-    | declarations declaration          { $2 : $1 }
+    :                                   { NopDecl }
+    | declarations declaration          { AndThenDecl $1 $2 }
 
 {
 parseError _ = error "Parse Error"

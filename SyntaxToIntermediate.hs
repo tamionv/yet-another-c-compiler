@@ -191,17 +191,23 @@ generate_expression e = case e of
 
 -- TODO declaration types
 generate_declaration :: Declaration -> State GeneratorState I.IntermediateCode
-generate_declaration (VarDecl _ xs) = do
-    let gen_init (x, y) = case y of
-            Nothing -> return $ Seq []
-            Just yy -> do
-                gen_eq <- generate_expression (S.Binop "=" (Variable x) (yy))
-                return $ Seq $ [gen_eq, I.Monop 4 I.Pop]
-    inits <- mapM gen_init xs
-    return $ Seq
-        [ Seq $ map (\(x, _) -> GlobalAlloc x 4) xs
-        , Seq inits
-        ]
+generate_declaration d = case d of
+    NopDecl -> return $ Seq []
+    AndThenDecl d1 d2 -> do 
+        g_decl_d1 <- generate_declaration d1
+        g_decl_d2 <- generate_declaration d2
+        return $ Seq [ g_decl_d1, g_decl_d2 ]
+    (VarDecl _ xs) -> do
+        let gen_init (x, y) = case y of
+                Nothing -> return $ Seq []
+                Just yy -> do
+                    gen_eq <- generate_expression (S.Binop "=" (Variable x) (yy))
+                    return $ Seq $ [gen_eq, I.Monop 4 I.Pop]
+        inits <- mapM gen_init xs
+        return $ Seq
+            [ Seq $ map (\(x, _) -> GlobalAlloc x 4) xs
+            , Seq inits
+            ]
 
 generate_statement :: Stmt -> State GeneratorState I.IntermediateCode
 generate_statement s = case s of
@@ -239,9 +245,6 @@ generate_statement s = case s of
 
 gen_program :: Program -> I.IntermediateCode
 gen_program (Prg decls stmts) = fst $ flip runState init_state $ do
-    let isAlloc ins = case ins of
-            GlobalAlloc _ _ -> True
-            _         -> False
-    (allocs, inits) <- List.partition isAlloc <$> I.flatten <$> Seq <$> mapM generate_declaration decls
+    decl <- generate_declaration decls
     text <- generate_statement stmts
-    return $ Seq $ allocs ++ inits ++ [text]
+    return $ Seq [decl, text]

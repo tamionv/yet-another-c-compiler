@@ -1,6 +1,6 @@
 module Syntax where
 
-data Program = Prg [Declaration] Stmt
+data Program = Prg Declaration Stmt
     deriving (Eq, Ord, Show)
 
 data Expr
@@ -39,5 +39,8 @@ data Type
     | UnsignedLongLong
     deriving (Eq, Ord, Show)
 
-data Declaration = VarDecl Type [(String, Maybe Expr)]
+data Declaration
+    = NopDecl
+    | AndThenDecl Declaration Declaration
+    | VarDecl Type [(String, Maybe Expr)]
     deriving (Eq, Ord, Show)
